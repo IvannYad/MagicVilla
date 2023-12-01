@@ -1,6 +1,7 @@
 ﻿using MagicVilla.Data;
 using MagicVilla.Models;
 using MagicVilla.Models.DTO;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MagicVilla.Controllers
@@ -12,12 +13,17 @@ namespace MagicVilla.Controllers
     public class VillaAPIController : ControllerBase
     {
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<VillaDTO>> GetVillas()
         {
             return Ok(VillaStore.villaList);
         }
 
         [HttpGet("{id:int}")]
+        // Following attridutes specifies what status codes method can return.
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<VillaDTO> GetVilla(int id)
         {
             if (id == 0)
