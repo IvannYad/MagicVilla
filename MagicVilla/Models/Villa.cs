@@ -1,4 +1,4 @@
-﻿namespace MagicVilla.Models
+﻿ namespace MagicVilla.Models
 {
     public class Villa
     {
