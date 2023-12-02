@@ -1,7 +1,9 @@
-﻿using MagicVilla.Data;
+﻿using Azure;
+using MagicVilla.Data;
 using MagicVilla.Models;
 using MagicVilla.Models.DTO;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -110,6 +112,28 @@ namespace MagicVilla.Controllers
             villaFromDb.Name = villaDTO.Name;
             villaFromDb.Occupancy = villaDTO.Occupancy;
             villaFromDb.SquareMeters = villaDTO.SquareMeters;
+            _context.Villas.Update(villaFromDb);
+            _context.SaveChanges();
+            return NoContent();
+        }
+
+        [HttpPatch("{id:int}", Name = "UpdatePartialVilla")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult UpdatePartialVilla(int id, JsonPatchDocument<VillaDTO> patchDTO)
+        {
+            if (id == 0 || patchDTO is null)
+                return BadRequest();
+
+            var villaFromDb = _context.Villas.FirstOrDefault(v => v.Id == id);
+            if (villaFromDb == null)
+                return NotFound();
+
+            patchDTO.ApplyTo(villaFromDb, ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            
             _context.Villas.Update(villaFromDb);
             _context.SaveChanges();
             return NoContent();
