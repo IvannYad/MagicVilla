@@ -1,5 +1,6 @@
 ﻿using Azure;
 using MagicVilla.Data;
+using MagicVilla.Logging;
 using MagicVilla.Models;
 using MagicVilla.Models.DTO;
 using Microsoft.AspNetCore.Diagnostics;
@@ -16,7 +17,6 @@ namespace MagicVilla.Controllers
     public class VillaAPIController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-
         public VillaAPIController(ApplicationDbContext context)
         {
             _context = context;
@@ -26,7 +26,7 @@ namespace MagicVilla.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<VillaDTO>> GetVillas()
         {
-            var villas = _context.Villas.AsNoTracking();
+            var villas = _context.Villas.AsNoTracking().ToList();
             return Ok(villas);
         }
 
@@ -38,11 +38,16 @@ namespace MagicVilla.Controllers
         public ActionResult<VillaDTO> GetVilla(int id)
         {
             if (id == 0)
+            {
                 return BadRequest();
+            }
+
 
             var villa = _context.Villas.FirstOrDefault(v => v.Id == id);
             if (villa == null)
+            {
                 return NotFound();
+            }
 
             return Ok(villa);
         }
@@ -51,7 +56,7 @@ namespace MagicVilla.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<VillaDTO> CreateVilla([FromBody]VillaDTO villaDTO)
+        public ActionResult<VillaDTO> CreateVilla([FromBody] VillaDTO villaDTO)
         {
             // With [ApiController] we dont need to explicitly check ModelState.
             // With [ApiController] validation occurs before entering method.
@@ -72,8 +77,18 @@ namespace MagicVilla.Controllers
 
             if (villaDTO.Id > 0)
                 return StatusCode(StatusCodes.Status500InternalServerError);
-            
-            _context.Villas.Add(villaDTO);
+
+            Villa villa = new()
+            {
+                Amenity = villaDTO.Amenity,
+                Details = villaDTO.Details,
+                ImageUrl = villaDTO.ImageUrl,
+                Name = villaDTO.Name,
+                Occupancy = villaDTO.Occupancy,
+                Rate = villaDTO.Rate,
+                SquareMeters = villaDTO.SquareMeters,
+            };
+            _context.Villas.Add(villa);
             _context.SaveChanges();
             return CreatedAtRoute("GetVilla", new { id = villaDTO.Id }, villaDTO);
         }
@@ -100,18 +115,26 @@ namespace MagicVilla.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult UpdateVilla(int id, [FromBody]VillaDTO villaDTO)
+        public IActionResult UpdateVilla(int id, [FromBody] VillaDTO villaDTO)
         {
-            if (id == villaDTO.Id || villaDTO is null)
+            if (id != villaDTO.Id || villaDTO is null)
                 return BadRequest();
 
-            var villaFromDb = _context.Villas.FirstOrDefault(v => v.Id == id);
+            var villaFromDb = _context.Villas.AsNoTracking().FirstOrDefault(v => v.Id == id);
             if (villaFromDb == null)
                 return NotFound();
 
-            villaFromDb.Name = villaDTO.Name;
-            villaFromDb.Occupancy = villaDTO.Occupancy;
-            villaFromDb.SquareMeters = villaDTO.SquareMeters;
+            villaFromDb = new()
+            {
+                Id = villaDTO.Id,
+                Amenity = villaDTO.Amenity,
+                Details = villaDTO.Details,
+                ImageUrl = villaDTO.ImageUrl,
+                Name = villaDTO.Name,
+                Occupancy = villaDTO.Occupancy,
+                Rate = villaDTO.Rate,
+                SquareMeters = villaDTO.SquareMeters,
+            };
             _context.Villas.Update(villaFromDb);
             _context.SaveChanges();
             return NoContent();
@@ -126,14 +149,36 @@ namespace MagicVilla.Controllers
             if (id == 0 || patchDTO is null)
                 return BadRequest();
 
-            var villaFromDb = _context.Villas.FirstOrDefault(v => v.Id == id);
+            var villaFromDb = _context.Villas.AsNoTracking().FirstOrDefault(v => v.Id == id);
             if (villaFromDb == null)
                 return NotFound();
-
-            patchDTO.ApplyTo(villaFromDb, ModelState);
+            
+            VillaDTO villaDTO = new()
+            {
+                Id = villaFromDb.Id,
+                Amenity = villaFromDb.Amenity,
+                Details = villaFromDb.Details,
+                ImageUrl = villaFromDb.ImageUrl,
+                Name = villaFromDb.Name,
+                Occupancy = villaFromDb.Occupancy,
+                Rate = villaFromDb.Rate,
+                SquareMeters = villaFromDb.SquareMeters,
+            };
+            patchDTO.ApplyTo(villaDTO, ModelState);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            
+
+            villaFromDb = new()
+            {
+                Id = villaDTO.Id,
+                Amenity = villaDTO.Amenity,
+                Details = villaDTO.Details,
+                ImageUrl = villaDTO.ImageUrl,
+                Name = villaDTO.Name,
+                Occupancy = villaDTO.Occupancy,
+                Rate = villaDTO.Rate,
+                SquareMeters = villaDTO.SquareMeters,
+            };
             _context.Villas.Update(villaFromDb);
             _context.SaveChanges();
             return NoContent();
