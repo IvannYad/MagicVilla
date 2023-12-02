@@ -17,19 +17,15 @@ namespace MagicVilla.Controllers
     public class VillaAPIController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        private ILogging _logger;
-
-        public VillaAPIController(ApplicationDbContext context, ILogging logger)
+        public VillaAPIController(ApplicationDbContext context)
         {
             _context = context;
-            _logger = logger;
         }
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<VillaDTO>> GetVillas()
         {
-            _logger.Log("Getting all villas", "information");
             var villas = _context.Villas.AsNoTracking();
             return Ok(villas);
         }
@@ -43,7 +39,6 @@ namespace MagicVilla.Controllers
         {
             if (id == 0)
             {
-                _logger.Log($"GetVilla error with Id {id}", "error");
                 return BadRequest();
             }
 
@@ -51,11 +46,9 @@ namespace MagicVilla.Controllers
             var villa = _context.Villas.FirstOrDefault(v => v.Id == id);
             if (villa == null)
             {
-                _logger.Log($"Villa with Id {id} not found", "error");
                 return NotFound();
             }
 
-            _logger.Log($"Getting villa with Id {villa.Id}", "information");
             return Ok(villa);
         }
 
