@@ -16,16 +16,19 @@ namespace MagicVilla.Controllers
     public class VillaAPIController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private ILogger<VillaAPIController> _logger;
 
-        public VillaAPIController(ApplicationDbContext context)
+        public VillaAPIController(ApplicationDbContext context, ILogger<VillaAPIController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<VillaDTO>> GetVillas()
         {
+            _logger.LogInformation("Getting all villas");
             var villas = _context.Villas.AsNoTracking();
             return Ok(villas);
         }
@@ -38,12 +41,20 @@ namespace MagicVilla.Controllers
         public ActionResult<VillaDTO> GetVilla(int id)
         {
             if (id == 0)
+            {
+                _logger.LogError($"Get Villa error with Id {id}");
                 return BadRequest();
+            }
+
 
             var villa = _context.Villas.FirstOrDefault(v => v.Id == id);
             if (villa == null)
+            {
+                _logger.LogError($"Villa with Id {id} not found");
                 return NotFound();
+            }
 
+            _logger.LogInformation($"Getting villa with Id {villa.Id}");
             return Ok(villa);
         }
 
@@ -51,7 +62,7 @@ namespace MagicVilla.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<VillaDTO> CreateVilla([FromBody]VillaDTO villaDTO)
+        public ActionResult<VillaDTO> CreateVilla([FromBody] VillaDTO villaDTO)
         {
             // With [ApiController] we dont need to explicitly check ModelState.
             // With [ApiController] validation occurs before entering method.
@@ -72,7 +83,7 @@ namespace MagicVilla.Controllers
 
             if (villaDTO.Id > 0)
                 return StatusCode(StatusCodes.Status500InternalServerError);
-            
+
             _context.Villas.Add(villaDTO);
             _context.SaveChanges();
             return CreatedAtRoute("GetVilla", new { id = villaDTO.Id }, villaDTO);
@@ -100,7 +111,7 @@ namespace MagicVilla.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult UpdateVilla(int id, [FromBody]VillaDTO villaDTO)
+        public IActionResult UpdateVilla(int id, [FromBody] VillaDTO villaDTO)
         {
             if (id == villaDTO.Id || villaDTO is null)
                 return BadRequest();
@@ -133,7 +144,7 @@ namespace MagicVilla.Controllers
             patchDTO.ApplyTo(villaFromDb, ModelState);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            
+
             _context.Villas.Update(villaFromDb);
             _context.SaveChanges();
             return NoContent();
