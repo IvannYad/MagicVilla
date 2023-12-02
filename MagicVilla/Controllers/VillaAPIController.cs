@@ -45,7 +45,7 @@ namespace MagicVilla.Controllers
             return Ok(villa);
         }
 
-        [HttpPost]
+        [HttpPost(Name = "CreateVilla")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -76,7 +76,7 @@ namespace MagicVilla.Controllers
             return CreatedAtRoute("GetVilla", new { id = villaDTO.Id }, villaDTO);
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("{id:int}", Name = "DeleteVilla")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -90,6 +90,27 @@ namespace MagicVilla.Controllers
                 return NotFound();
 
             _context.Villas.Remove(villa);
+            _context.SaveChanges();
+            return NoContent();
+        }
+
+        [HttpPut("{id:int}", Name = "UpdateVilla")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult UpdateVilla(int id, [FromBody]VillaDTO villaDTO)
+        {
+            if (id == villaDTO.Id || villaDTO is null)
+                return BadRequest();
+
+            var villaFromDb = _context.Villas.FirstOrDefault(v => v.Id == id);
+            if (villaFromDb == null)
+                return NotFound();
+
+            villaFromDb.Name = villaDTO.Name;
+            villaFromDb.Occupancy = villaDTO.Occupancy;
+            villaFromDb.SquareMeters = villaDTO.SquareMeters;
+            _context.Villas.Update(villaFromDb);
             _context.SaveChanges();
             return NoContent();
         }
