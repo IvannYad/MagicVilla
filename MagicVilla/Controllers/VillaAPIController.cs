@@ -3,6 +3,7 @@ using MagicVilla.Models;
 using MagicVilla.Models.DTO;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MagicVilla.Controllers
 {
@@ -12,11 +13,19 @@ namespace MagicVilla.Controllers
     [ApiController]
     public class VillaAPIController : ControllerBase
     {
+        private readonly ApplicationDbContext _context;
+
+        public VillaAPIController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<VillaDTO>> GetVillas()
         {
-            return Ok(VillaStore.villaList);
+            var villas = _context.Villas.AsNoTracking();
+            return Ok(villas);
         }
 
         [HttpGet("{id:int}")]
@@ -29,7 +38,7 @@ namespace MagicVilla.Controllers
             if (id == 0)
                 return BadRequest();
 
-            var villa = VillaStore.villaList.FirstOrDefault(v => v.Id == id);
+            var villa = _context.Villas.FirstOrDefault(v => v.Id == id);
             if (villa == null)
                 return NotFound();
 
@@ -48,8 +57,8 @@ namespace MagicVilla.Controllers
             if (villaDTO.Id > 0)
                 return StatusCode(StatusCodes.Status500InternalServerError);
             
-            villaDTO.Id = VillaStore.villaList.Max(x => x.Id) + 1;
-            VillaStore.villaList.Add(villaDTO);
+            _context.Villas.Add(villaDTO);
+            _context.SaveChanges();
             return StatusCode(StatusCodes.Status201Created, villaDTO);
         }
     }
