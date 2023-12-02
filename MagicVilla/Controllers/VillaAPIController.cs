@@ -28,7 +28,7 @@ namespace MagicVilla.Controllers
             return Ok(villas);
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:int}", Name = "GetVilla")]
         // Following attridutes specifies what status codes method can return.
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -59,7 +59,7 @@ namespace MagicVilla.Controllers
             
             _context.Villas.Add(villaDTO);
             _context.SaveChanges();
-            return StatusCode(StatusCodes.Status201Created, villaDTO);
+            return CreatedAtRoute("GetVilla", new { id = villaDTO.Id }, villaDTO);
         }
     }
 }
