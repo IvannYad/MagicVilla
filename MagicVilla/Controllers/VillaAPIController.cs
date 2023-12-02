@@ -1,5 +1,6 @@
 ﻿using Azure;
 using MagicVilla.Data;
+using MagicVilla.Logging;
 using MagicVilla.Models;
 using MagicVilla.Models.DTO;
 using Microsoft.AspNetCore.Diagnostics;
@@ -16,9 +17,9 @@ namespace MagicVilla.Controllers
     public class VillaAPIController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        private ILogger<VillaAPIController> _logger;
+        private ILogging _logger;
 
-        public VillaAPIController(ApplicationDbContext context, ILogger<VillaAPIController> logger)
+        public VillaAPIController(ApplicationDbContext context, ILogging logger)
         {
             _context = context;
             _logger = logger;
@@ -28,7 +29,7 @@ namespace MagicVilla.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<VillaDTO>> GetVillas()
         {
-            _logger.LogInformation("Getting all villas");
+            _logger.Log("Getting all villas", "information");
             var villas = _context.Villas.AsNoTracking();
             return Ok(villas);
         }
@@ -42,7 +43,7 @@ namespace MagicVilla.Controllers
         {
             if (id == 0)
             {
-                _logger.LogError($"Get Villa error with Id {id}");
+                _logger.Log($"GetVilla error with Id {id}", "error");
                 return BadRequest();
             }
 
@@ -50,11 +51,11 @@ namespace MagicVilla.Controllers
             var villa = _context.Villas.FirstOrDefault(v => v.Id == id);
             if (villa == null)
             {
-                _logger.LogError($"Villa with Id {id} not found");
+                _logger.Log($"Villa with Id {id} not found", "error");
                 return NotFound();
             }
 
-            _logger.LogInformation($"Getting villa with Id {villa.Id}");
+            _logger.Log($"Getting villa with Id {villa.Id}", "information");
             return Ok(villa);
         }
 
