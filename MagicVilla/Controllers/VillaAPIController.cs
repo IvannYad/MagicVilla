@@ -117,10 +117,10 @@ namespace MagicVilla.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult UpdateVilla(int id, [FromBody] VillaDTO villaDTO)
         {
-            if (id == villaDTO.Id || villaDTO is null)
+            if (id != villaDTO.Id || villaDTO is null)
                 return BadRequest();
 
-            var villaFromDb = _context.Villas.FirstOrDefault(v => v.Id == id);
+            var villaFromDb = _context.Villas.AsNoTracking().FirstOrDefault(v => v.Id == id);
             if (villaFromDb == null)
                 return NotFound();
 
@@ -149,7 +149,7 @@ namespace MagicVilla.Controllers
             if (id == 0 || patchDTO is null)
                 return BadRequest();
 
-            var villaFromDb = _context.Villas.FirstOrDefault(v => v.Id == id);
+            var villaFromDb = _context.Villas.AsNoTracking().FirstOrDefault(v => v.Id == id);
             if (villaFromDb == null)
                 return NotFound();
             
