@@ -51,6 +51,20 @@ namespace MagicVilla.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<VillaDTO> CreateVilla([FromBody]VillaDTO villaDTO)
         {
+            // With [ApiController] we dont need to explicitly check ModelState.
+            // With [ApiController] validation occurs before entering method.
+            //if (!ModelState.IsValid)
+            //    return BadRequest(ModelState);
+
+            if (_context.Villas
+                .AsNoTracking()
+                .AsEnumerable()
+                .FirstOrDefault(v => v.Name.Equals(villaDTO.Name, StringComparison.OrdinalIgnoreCase)) is not null)
+            {
+                ModelState.AddModelError("CustomError", "Villa already exists");
+                return BadRequest(ModelState);
+            }
+
             if (villaDTO is null)
                 return BadRequest();
 
