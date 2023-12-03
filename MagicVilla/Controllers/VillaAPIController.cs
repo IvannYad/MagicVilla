@@ -56,7 +56,7 @@ namespace MagicVilla.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<VillaDTO> CreateVilla([FromBody] VillaDTO villaDTO)
+        public ActionResult<VillaDTO> CreateVilla([FromBody] VillaCreateDTO villaDTO)
         {
             // With [ApiController] we dont need to explicitly check ModelState.
             // With [ApiController] validation occurs before entering method.
@@ -75,9 +75,6 @@ namespace MagicVilla.Controllers
             if (villaDTO is null)
                 return BadRequest();
 
-            if (villaDTO.Id > 0)
-                return StatusCode(StatusCodes.Status500InternalServerError);
-
             Villa villa = new()
             {
                 Amenity = villaDTO.Amenity,
@@ -90,7 +87,7 @@ namespace MagicVilla.Controllers
             };
             _context.Villas.Add(villa);
             _context.SaveChanges();
-            return CreatedAtRoute("GetVilla", new { id = villaDTO.Id }, villaDTO);
+            return CreatedAtRoute("GetVilla", new { id = villa.Id }, villa);
         }
 
         [HttpDelete("{id:int}", Name = "DeleteVilla")]
@@ -115,7 +112,7 @@ namespace MagicVilla.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult UpdateVilla(int id, [FromBody] VillaDTO villaDTO)
+        public IActionResult UpdateVilla(int id, [FromBody] VillaUpdateDTO villaDTO)
         {
             if (id != villaDTO.Id || villaDTO is null)
                 return BadRequest();
@@ -144,7 +141,7 @@ namespace MagicVilla.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult UpdatePartialVilla(int id, JsonPatchDocument<VillaDTO> patchDTO)
+        public IActionResult UpdatePartialVilla(int id, JsonPatchDocument<VillaUpdateDTO> patchDTO)
         {
             if (id == 0 || patchDTO is null)
                 return BadRequest();
@@ -153,7 +150,7 @@ namespace MagicVilla.Controllers
             if (villaFromDb == null)
                 return NotFound();
             
-            VillaDTO villaDTO = new()
+            VillaUpdateDTO villaDTO = new()
             {
                 Id = villaFromDb.Id,
                 Amenity = villaFromDb.Amenity,
