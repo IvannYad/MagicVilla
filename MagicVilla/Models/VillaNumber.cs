@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MagicVilla.Models
@@ -10,5 +11,10 @@ namespace MagicVilla.Models
         public string SpecialDetails { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+
+        [ForeignKey("Villa")]
+        public int VillaId { get; set; }
+        [ValidateNever]
+        public Villa Villa { get; set; }
     }
 }
