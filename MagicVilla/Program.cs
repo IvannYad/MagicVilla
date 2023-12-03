@@ -1,5 +1,7 @@
 using MagicVilla;
 using MagicVilla.Data;
+using MagicVilla.Repository.IRepository;
+using MagicVilla.Repository;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +13,7 @@ builder.Services.AddControllers(option =>
 }).AddNewtonsoftJson()
   .AddXmlDataContractSerializerFormatters();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
