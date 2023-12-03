@@ -2,6 +2,7 @@
 using MagicVilla.Models;
 using MagicVilla.Models.DTO;
 using MagicVilla.Repository.IRepository;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -87,7 +88,7 @@ namespace MagicVilla.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CreateVilla([FromBody] VillaNumberCreateDTO createDTO)
+        public async Task<ActionResult<APIResponse>> CreateVillaNumber([FromBody] VillaNumberCreateDTO createDTO)
         {
             try
             {
@@ -95,7 +96,6 @@ namespace MagicVilla.Controllers
                 // With [ApiController] validation occurs before entering method.
                 //if (!ModelState.IsValid)
                 //    return BadRequest(ModelState);
-
                 if (createDTO is null)
                 {
                     _response.IsSuccess = false;
@@ -103,7 +103,24 @@ namespace MagicVilla.Controllers
                     _response.ErrorMessages = ["Argument is null"];
                     return BadRequest(_response);
                 }
-                
+
+                if ((await _unitOfWork.VillaNumber
+                    .GetAsync(v => v.VillaNo == createDTO.VillaNo) is not null))
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.ErrorMessages = ["VillaNumber already exists"];
+                    return BadRequest(_response);
+                }
+
+                if ((await _unitOfWork.Villa.GetAsync(v => v.Id == createDTO.VillaId)) is null)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.ErrorMessages = ["No such Villa with given Id"];
+                    return BadRequest(_response);
+                }
+
                 VillaNumber villaNumber = _mapper.Map<VillaNumber>(createDTO);
                 await _unitOfWork.VillaNumber.AddAsync(villaNumber);
                 await _unitOfWork.SaveAsync();
@@ -124,7 +141,7 @@ namespace MagicVilla.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> DeleteVilla(int id)
+        public async Task<ActionResult<APIResponse>> DeleteVillaNumber(int id)
         {
             try
             {
@@ -164,7 +181,7 @@ namespace MagicVilla.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> UpdateVilla(int id, [FromBody] VillaNumberUpdateDTO updateDTO)
+        public async Task<ActionResult<APIResponse>> UpdateVillaNumber(int id, [FromBody] VillaNumberUpdateDTO updateDTO)
         {
             try
             {
@@ -188,7 +205,15 @@ namespace MagicVilla.Controllers
                     _response.ErrorMessages = [$"Entity with Id {id} not found"];
                     return NotFound(_response);
                 }
- 
+
+                if ((await _unitOfWork.Villa.GetAsync(v => v.Id == updateDTO.VillaId)) is null)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.ErrorMessages = ["No such Villa with given Id"];
+                    return BadRequest(_response);
+                }
+
                 villaNumberFromDb = _mapper.Map<VillaNumber>(updateDTO);
                 _unitOfWork.VillaNumber.Update(villaNumberFromDb);
                 await _unitOfWork.SaveAsync();
@@ -209,7 +234,7 @@ namespace MagicVilla.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> UpdatePartialVilla(int id, JsonPatchDocument<VillaNumberUpdateDTO> patchDTO)
+        public async Task<ActionResult<APIResponse>> UpdatePartialVillaNumber(int id, JsonPatchDocument<VillaNumberUpdateDTO> patchDTO)
         {
             try
             {
@@ -233,7 +258,7 @@ namespace MagicVilla.Controllers
                     _response.ErrorMessages = [$"Entity with Id {id} not found"];
                     return NotFound(_response);
                 }
-                
+
                 VillaNumberUpdateDTO updateDTO = _mapper.Map<VillaNumberUpdateDTO>(villaNumberFromDb);
                 patchDTO.ApplyTo(updateDTO, ModelState);
                 if (!ModelState.IsValid)
@@ -243,7 +268,15 @@ namespace MagicVilla.Controllers
                     _response.ErrorMessages = ["State of Model is not valid"];
                     return BadRequest(_response);
                 }
-                
+
+                if ((await _unitOfWork.Villa.GetAsync(v => v.Id == updateDTO.VillaId)) is null)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.ErrorMessages = ["No such Villa with given Id"];
+                    return BadRequest(_response);
+                }
+
                 villaNumberFromDb = _mapper.Map<VillaNumber>(updateDTO);
                 _unitOfWork.VillaNumber.Update(villaNumberFromDb);
                 await _unitOfWork.SaveAsync();
