@@ -15,17 +15,19 @@ namespace MagicVilla.Repository
             _dbSet = context.Set<T>();
         }
 
-        public async Task CreateAsync(T entity)
+        public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
         }
 
-        public async Task<List<T>> GetAllAsync()
+        public async Task<List<T>> GetAllAsync(bool tracked = true)
         {
+            if (tracked)
+                return await _dbSet.ToListAsync();
             return await _dbSet.AsNoTracking().ToListAsync();
         }
 
-        public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool tracked = false)
+        public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool tracked = true)
         {
             IQueryable<T> query = _dbSet;
             if (!tracked)
