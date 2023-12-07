@@ -48,5 +48,33 @@ namespace MagicVilla_Web.Controllers
 
             return View("CreateVilla", villaCreateDTO);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateVilla([FromRoute]int villaId)
+        {
+            var response = await _villaService.GetAsync<APIResponse>(villaId);
+            if (response is not null && response.IsSuccess)
+            {
+                var model = JsonConvert.DeserializeObject<VillaDTO>(Convert.ToString(response.Result)!));
+                return View(_mapper.Map<VillaUpdateDTO>(model));
+            }
+            
+            return NotFound();
+        }
+
+        [HttpPost]
+        [ActionName("UpdateVilla")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateVillaPOST(VillaUpdateDTO villaUpdateDTO)
+        {
+            if (ModelState.IsValid)
+            {
+                var response = await _villaService.UpdateAsync<APIResponse>(villaUpdateDTO);
+                if (response is not null && response.IsSuccess)
+                    return RedirectToAction(nameof(IndexVilla));
+            }
+
+            return View("UpdateVilla", villaUpdateDTO);
+        }
     }
 }
