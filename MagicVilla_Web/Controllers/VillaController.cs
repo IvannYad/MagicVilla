@@ -50,12 +50,12 @@ namespace MagicVilla_Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> UpdateVilla([FromRoute]int villaId)
+        public async Task<IActionResult> UpdateVilla([FromQuery]int villaId)
         {
             var response = await _villaService.GetAsync<APIResponse>(villaId);
             if (response is not null && response.IsSuccess)
             {
-                var model = JsonConvert.DeserializeObject<VillaDTO>(Convert.ToString(response.Result)!));
+                var model = JsonConvert.DeserializeObject<VillaDTO>(Convert.ToString(response.Result)!);
                 return View(_mapper.Map<VillaUpdateDTO>(model));
             }
             
