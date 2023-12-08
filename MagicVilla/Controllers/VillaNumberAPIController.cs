@@ -31,7 +31,7 @@ namespace MagicVilla.Controllers
         {
             try
             {
-                var villas = await _unitOfWork.VillaNumber.GetAllAsync();
+                var villas = await _unitOfWork.VillaNumber.GetAllAsync(tracked: false, includeProperties: "Villa");
                 _response.Result = _mapper.Map<List<VillaNumberDTO>>(villas);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
@@ -62,7 +62,7 @@ namespace MagicVilla.Controllers
                     return BadRequest(_response);
                 }
 
-                var villaNumber = await _unitOfWork.VillaNumber.GetAsync(v => v.VillaNo == id, tracked: false);
+                var villaNumber = await _unitOfWork.VillaNumber.GetAsync(v => v.VillaNo == id, tracked: false, "Villa");
                 if (villaNumber == null)
                 {
                     _response.IsSuccess = false;
