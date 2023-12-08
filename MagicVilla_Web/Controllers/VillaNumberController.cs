@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using MagicVilla_Web.Models;
 using MagicVilla_Web.Models.DTO;
+using MagicVilla_Web.Models.ViewModels;
 using MagicVilla_Web.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.ComponentModel;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace MagicVilla_Web.Controllers
 {
@@ -29,24 +31,39 @@ namespace MagicVilla_Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> CreateVillaNumber()
+        public async Task<IActionResult> CreateVillaNumber([FromServices] IVillaService villaService)
         {
-            return View();
+            var response = await villaService.GetAllAsync<APIResponse>();
+            IEnumerable<VillaDTO> villaList = new List<VillaDTO>();
+            if (response is not null && response.IsSuccess)
+                villaList = JsonConvert.DeserializeObject<List<VillaDTO>>(response.Result.ToString())!;
+
+            var createVillaNumberViewModel = new CreateVillaNumberViewModel()
+            {
+                VillaNumber = new VillaNumberCreateDTO(),
+                VillaList = villaList.Select(villa => new SelectListItem
+                {
+                    Text = villa.Name,
+                    Value = villa.Id.ToString(),
+                })
+            };
+
+            return View(createVillaNumberViewModel);
         }
 
         [HttpPost]
         [ActionName("CreateVillaNumber")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateVillaNumberPOST(VillaNumberCreateDTO villaNumberCreateDTO)
+        public async Task<IActionResult> CreateVillaNumberPOST(CreateVillaNumberViewModel createVillaNumberViewModel)
         {
             if (ModelState.IsValid)
             {
-                var response = await _villaNumberService.CreateAsync<APIResponse>(villaNumberCreateDTO);
+                var response = await _villaNumberService.CreateAsync<APIResponse>(createVillaNumberViewModel.VillaNumber);
                 if (response is not null && response.IsSuccess)
                     return RedirectToAction(nameof(IndexVillaNumber));
             }
 
-            return View("CreateVillaNumber", villaNumberCreateDTO);
+            return View("CreateVillaNumber", createVillaNumberViewModel);
         }
 
         [HttpGet]
