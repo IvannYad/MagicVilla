@@ -67,13 +67,27 @@ namespace MagicVilla_Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> UpdateVillaNumber([FromQuery]int villaNo)
+        public async Task<IActionResult> UpdateVillaNumber([FromQuery]int villaNo, [FromServices] IVillaService villaService)
         {
             var response = await _villaNumberService.GetAsync<APIResponse>(villaNo);
             if (response is not null && response.IsSuccess)
             {
+                var responseVillaList = await villaService.GetAllAsync<APIResponse>();
+                IEnumerable<VillaDTO> villaList = new List<VillaDTO>();
+                if (responseVillaList is not null && responseVillaList.IsSuccess)
+                    villaList = JsonConvert.DeserializeObject<List<VillaDTO>>(responseVillaList.Result.ToString())!;
+
                 var model = JsonConvert.DeserializeObject<VillaNumberDTO>(Convert.ToString(response.Result)!);
-                return View(_mapper.Map<VillaNumberUpdateDTO>(model));
+                var updateVillaNumberViewModel = new UpdateVillaNumberViewModel()
+                {
+                    VillaNumber = _mapper.Map<VillaNumberUpdateDTO>(model),
+                    VillaList = villaList.Select(villa => new SelectListItem
+                    {
+                        Text = villa.Name,
+                        Value = villa.Id.ToString(),
+                    })
+                };
+                return View(updateVillaNumberViewModel);
             }
             
             return NotFound();
@@ -82,16 +96,16 @@ namespace MagicVilla_Web.Controllers
         [HttpPost]
         [ActionName("UpdateVillaNumber")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateVillaNumberPOST(VillaNumberUpdateDTO villaNumberUpdateDTO)
+        public async Task<IActionResult> UpdateVillaNumberPOST(UpdateVillaNumberViewModel updateVillaNumberViewModel)
         {
             if (ModelState.IsValid)
             {
-                var response = await _villaNumberService.UpdateAsync<APIResponse>(villaNumberUpdateDTO);
+                var response = await _villaNumberService.UpdateAsync<APIResponse>(updateVillaNumberViewModel.VillaNumber);
                 if (response is not null && response.IsSuccess)
                     return RedirectToAction(nameof(IndexVillaNumber));
             }
 
-            return View("UpdateVillaNumber", villaNumberUpdateDTO);
+            return View("UpdateVillaNumber", updateVillaNumberViewModel);
         }
 
         [HttpGet]
