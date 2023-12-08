@@ -6,7 +6,6 @@
         <h1 class="text-primary">Update Villa Number</h1>
         <hr />
 
-        <input asp-for="VillaNumber.VillaNo" hidden/>
         <div class="row">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -34,11 +33,17 @@
                 <span asp-validation-for="VillaNumber.VillaId" class="text-danger"></span>
             </div>
 
-            <div class="col-5">
-                <input type="submit" value="Update" class="btn btn-success form-control offset-5" />
-            </div>
-            <div class="col-5">
-                <a asp-action="IndexVillaNumber" asp-controller="VillaNumber" class="btn-primary btn form-control offset-5">Back to List</a>
+            <div class="d-flex justify-content-end">
+                <div class="d-flex justify-content-start col-10">
+                    <div class="d-flex justify-content-between col-10">
+                        <div class="col-6">
+                            <input type="submit" value="Update" class="btn btn-success form-control" />
+                        </div>
+                        <div class="col-6 m-2 mt-0 mb-0">
+                            <a asp-action="IndexVillaNumber" asp-controller="VillaNumber" class="btn-primary btn form-control">Back to List</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

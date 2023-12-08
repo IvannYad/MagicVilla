@@ -32,12 +32,17 @@
                 <select asp-for="VillaNumber.VillaId" class="form-control" asp-items="@Model.VillaList"></select>
                 <span asp-validation-for="VillaNumber.VillaId" class="text-danger"></span>
             </div>
-            
-            <div class="col-5">
-                <input type="submit" value="Create" class="btn btn-success form-control offset-5" />
-            </div>
-            <div class="col-5">
-                <a asp-action="IndexVillaNumber" asp-controller="VillaNumber" class="btn-primary btn form-control offset-5">Back to List</a>
+            <div class="d-flex justify-content-end">
+                <div class="d-flex justify-content-start col-10">
+                    <div class="d-flex justify-content-between col-10">
+                        <div class="col-6">
+                            <input type="submit" value="Create" class="btn btn-success form-control" />
+                        </div>
+                        <div class="col-6 m-2 mt-0 mb-0">
+                            <a asp-action="IndexVillaNumber" asp-controller="VillaNumber" class="btn-primary btn form-control">Back to List</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

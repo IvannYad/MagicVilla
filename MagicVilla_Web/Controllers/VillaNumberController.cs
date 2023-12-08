@@ -105,7 +105,7 @@ namespace MagicVilla_Web.Controllers
                     return RedirectToAction(nameof(IndexVillaNumber));
             }
 
-            return View("UpdateVillaNumber", updateVillaNumberViewModel);
+            return RedirectToAction(nameof(UpdateVillaNumber), new { villaNo = updateVillaNumberViewModel.VillaNumber.VillaNo });
         }
 
         [HttpGet]
@@ -130,7 +130,7 @@ namespace MagicVilla_Web.Controllers
             if (response is not null && response.IsSuccess)
                 return RedirectToAction(nameof(IndexVillaNumber));
             
-            return View("DeleteVillaNumber", villaNumberDTO);
+            return RedirectToAction(nameof(DeleteVillaNumber), new { villaNo = villaNumberDTO.VillaNo});
         }
     }
 }
