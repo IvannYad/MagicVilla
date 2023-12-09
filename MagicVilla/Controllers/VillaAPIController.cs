@@ -105,7 +105,7 @@ namespace MagicVilla.Controllers
                     .GetAllAsync(tracked: false))
                     .FirstOrDefault(v => v.Name.Equals(createDTO.Name, StringComparison.OrdinalIgnoreCase)) is not null)
                 {
-                    ModelState.AddModelError("CustomError", "Villa already exists");
+                    ModelState.AddModelError("ErrorMessages", "Villa already exists");
                     return BadRequest(ModelState);
                 }
 

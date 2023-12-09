@@ -3,6 +3,7 @@ using MagicVilla.Models;
 using MagicVilla.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MagicVilla.Repository
 {
@@ -20,21 +21,39 @@ namespace MagicVilla.Repository
             await _dbSet.AddAsync(entity);
         }
 
-        public async Task<List<T>> GetAllAsync(bool tracked = true)
-        {
-            if (tracked)
-                return await _dbSet.ToListAsync();
-            return await _dbSet.AsNoTracking().ToListAsync();
-        }
-
-        public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool tracked = true)
+        public async Task<List<T>> GetAllAsync(bool tracked = true, string? includeProperties = null)
         {
             IQueryable<T> query = _dbSet;
             if (!tracked)
                 query = query.AsNoTracking();
 
-            var villa = await query.FirstOrDefaultAsync(filter);
-            return villa;
+            if (includeProperties is not null)
+            {
+                foreach (var includeProperty in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProperty);
+                }
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool tracked = true, string? includeProperties = null)
+        {
+            IQueryable<T> query = _dbSet;
+            if (!tracked)
+                query = query.AsNoTracking();
+
+            query = query.Where(filter);
+            if (includeProperties is not null)
+            {
+                foreach (var includeProperty in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProperty);
+                }
+            }
+
+            return await query.FirstOrDefaultAsync();
         }
 
         public void Remove(T entity)
