@@ -63,13 +63,16 @@ namespace MagicVilla_Web.Controllers
             {
                 var response = await _villaNumberService.CreateAsync<APIResponse>(createVillaNumberViewModel.VillaNumber);
                 if (response is not null && response.IsSuccess)
+                {
+                    TempData["success"] = "Villa Number created successfully";
                     return RedirectToAction(nameof(IndexVillaNumber));
-
+                }
+                    
                 ModelState.AddModelError("VillaNumber.VillaNo", string.Join('\n', response.ErrorMessages));
             }
 
             await createVillaNumberViewModel.FillVillaList(_villaService);
-
+            TempData["error"] = "Error while creating Villa Number";
             return View(nameof(CreateVillaNumber), createVillaNumberViewModel);
         }
 
@@ -87,7 +90,8 @@ namespace MagicVilla_Web.Controllers
                 await updateVillaNumberViewModel.FillVillaList(_villaService);
                 return View(updateVillaNumberViewModel);
             }
-            
+
+            TempData["error"] = "Error! No such Villa Number";
             return NotFound();
         }
 
@@ -102,8 +106,11 @@ namespace MagicVilla_Web.Controllers
                 var responseUpdate = await _villaNumberService
                     .UpdateAsync<APIResponse>(villaNo, updateVillaNumberViewModel.VillaNumber);
                 if (responseUpdate is not null && responseUpdate.IsSuccess)
+                {
+                    TempData["success"] = "Villa Number updated successfully";
                     return RedirectToAction(nameof(IndexVillaNumber));
-
+                }
+                    
                 ModelState.AddModelError("VillaNumber.VillaNo", string.Join('\n', responseUpdate.ErrorMessages));
             }
 
@@ -113,11 +120,13 @@ namespace MagicVilla_Web.Controllers
             {
                 var model = JsonConvert.DeserializeObject<VillaNumberDTO>(Convert.ToString(responseVillaNumber.Result)!);
                 updateVillaNumberViewModel.VillaNumber = _mapper.Map<VillaNumberUpdateDTO>(model);
+                TempData["error"] = "Error while updating Villa Number";
                 return View(nameof(UpdateVillaNumber), updateVillaNumberViewModel);
             }
 
             // If error occurred while retrieving VillaNumber. 
             ModelState.AddModelError("VillaNumber.VillaNo", string.Join('\n', responseVillaNumber.ErrorMessages));
+            TempData["error"] = "Error while updating Villa Number";
             return View(nameof(UpdateVillaNumber), updateVillaNumberViewModel);
         }
 
@@ -131,6 +140,7 @@ namespace MagicVilla_Web.Controllers
                 return View(model);
             }
 
+            TempData["error"] = "Error! No such Villa Number";
             return NotFound();
         }
 
@@ -141,8 +151,12 @@ namespace MagicVilla_Web.Controllers
         {
             var response = await _villaNumberService.DeleteAsync<APIResponse>(villaNumberDTO.VillaNo);
             if (response is not null && response.IsSuccess)
+            {
+                TempData["success"] = "Villa Number deleted successfully";
                 return RedirectToAction(nameof(IndexVillaNumber));
-            
+            }
+
+            TempData["error"] = "Error while deleting Villa Number";
             return RedirectToAction(nameof(DeleteVillaNumber), new { villaNo = villaNumberDTO.VillaNo});
         }
     }

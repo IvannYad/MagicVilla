@@ -43,9 +43,13 @@ namespace MagicVilla_Web.Controllers
             {
                 var response = await _villaService.CreateAsync<APIResponse>(villaCreateDTO);
                 if (response is not null && response.IsSuccess)
+                {
+                    TempData["success"] = "Villa created successfully";
                     return RedirectToAction(nameof(IndexVilla));
+                }
             }
 
+            TempData["error"] = "Error while creating Villa";
             return View("CreateVilla", villaCreateDTO);
         }
 
@@ -58,7 +62,8 @@ namespace MagicVilla_Web.Controllers
                 var model = JsonConvert.DeserializeObject<VillaDTO>(Convert.ToString(response.Result)!);
                 return View(_mapper.Map<VillaUpdateDTO>(model));
             }
-            
+
+            TempData["error"] = "Error! No such Villa";
             return NotFound();
         }
 
@@ -71,9 +76,13 @@ namespace MagicVilla_Web.Controllers
             {
                 var response = await _villaService.UpdateAsync<APIResponse>(villaUpdateDTO);
                 if (response is not null && response.IsSuccess)
+                {
+                    TempData["success"] = "Villa updated successfully";
                     return RedirectToAction(nameof(IndexVilla));
+                }
             }
 
+            TempData["error"] = "Error while creating Villa";
             return View("UpdateVilla", villaUpdateDTO);
         }
 
@@ -87,6 +96,7 @@ namespace MagicVilla_Web.Controllers
                 return View(model);
             }
 
+            TempData["error"] = "Error! No such Villa";
             return NotFound();
         }
 
@@ -97,8 +107,12 @@ namespace MagicVilla_Web.Controllers
         {
             var response = await _villaService.DeleteAsync<APIResponse>(villaDTO.Id);
             if (response is not null && response.IsSuccess)
+            {
+                TempData["success"] = "Villa deleted successfully";
                 return RedirectToAction(nameof(IndexVilla));
-            
+            }
+
+            TempData["error"] = "Error while deleting Villa";
             return View("DeleteVilla", villaDTO);
         }
     }
