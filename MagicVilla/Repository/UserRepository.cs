@@ -15,7 +15,7 @@ namespace MagicVilla.Repository
         private readonly ApplicationDbContext _context;
         private string _secretKey;
 
-        public UserRepository(ApplicationDbContext context, [FromServices] IConfiguration configuration)
+        public UserRepository(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
             _secretKey = configuration.GetValue<string>("ApiSettings:Secret")!;
@@ -34,7 +34,11 @@ namespace MagicVilla.Repository
             var user = _context.LocalUsers
                 .FirstOrDefault(user => user.UserName == loginRequestDTO.UserName && user.Password == loginRequestDTO.Password);
             if (user is null)
-                return null;
+                return new LoginResponseDTO
+                {
+                    Token = string.Empty,
+                    User = null,
+                };
 
             // If user is found generate JWT token.
             var tokenHandler = new JwtSecurityTokenHandler();
