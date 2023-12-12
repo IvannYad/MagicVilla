@@ -15,17 +15,32 @@ namespace MagicVilla.Repository
         }
         public bool IsUserUnique(string username)
         {
-            throw new NotImplementedException();
+            var userFromDb = _context.LocalUsers.FirstOrDefault(user => user.Name == username);
+            if (userFromDb is null)
+                return true;
+
+            return false;
         }
 
-        public Task<LoginResponseDTO> LoginAsync(LoginRequestDTO loginRequestDTO)
+        public async Task<LoginResponseDTO> LoginAsync(LoginRequestDTO loginRequestDTO)
         {
             throw new NotImplementedException();
         }
 
-        public Task<LocalUser> Register(RegistrationRequestDTO registrationRequestDTO)
+        public async Task<LocalUser> Register(RegistrationRequestDTO registrationRequestDTO)
         {
-            throw new NotImplementedException();
+            LocalUser user = new LocalUser()
+            {
+                UserName = registrationRequestDTO.UserName,
+                Password = registrationRequestDTO.Password,
+                Name = registrationRequestDTO.Name,
+                Role = registrationRequestDTO.Role
+            };
+
+            await _context.LocalUsers.AddAsync(user);
+            await _context.SaveChangesAsync();
+            user.Password = string.Empty;
+            return user;
         }
     }
 }
