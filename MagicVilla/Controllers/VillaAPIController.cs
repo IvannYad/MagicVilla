@@ -15,9 +15,10 @@ using System.Net;
 namespace MagicVilla.Controllers
 {
     // We need to apply [Route] attribute to API class.
-    [Route("api/Villa")]
+    [Route("api/v{version:apiVersion}/Villa")]
     // Classes with [ApiController] are configured with features to improve developers experience for buildeing API.
     [ApiController]
+    [ApiVersion("1.0")]
     public class VillaAPIController : ControllerBase
     {
         protected APIResponse _response;
