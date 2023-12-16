@@ -32,8 +32,8 @@ namespace MagicVilla_Web.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            var login = new RegistrationRequestDTO();
-            return View(login);
+            var register = new RegistrationRequestDTO();
+            return View(register);
         }
 
         [HttpPost]
@@ -41,6 +41,16 @@ namespace MagicVilla_Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegisterPOST(RegistrationRequestDTO registration)
         {
+            if (!string.Equals(registration.Password, registration.PasswordConfirm, StringComparison.CurrentCulture))
+                ModelState.AddModelError(nameof(registration.PasswordConfirm), "Passwords must match");
+
+            if (!ModelState.IsValid)
+            {
+                TempData["error"] = "Registration failed";
+                var register = new RegistrationRequestDTO();
+                return View(nameof(Register), register);
+            }
+
             APIResponse response =  await _authService.RegisterAsync<APIResponse>(registration);
             if (response is not null && response.IsSuccess)
             {
