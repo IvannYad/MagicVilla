@@ -11,9 +11,10 @@ using System.Net;
 namespace MagicVilla.Controllers
 {
     // We need to apply [Route] attribute to API class.
-    [Route("api/VillaNumber")]
+    [Route("api/v{version:apiVersion}/VillaNumber")]
     // Classes with [ApiController] are configured with features to improve developers experience for buildeing API.
     [ApiController]
+    [ApiVersion("1.0")]
     public class VillaNumberAPIController : ControllerBase
     {
         protected APIResponse _response;
@@ -27,6 +28,7 @@ namespace MagicVilla.Controllers
         }
 
         [HttpGet]
+        [MapToApiVersion("1.0")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<APIResponse>> GetVillaNumbers()
         {
@@ -47,6 +49,7 @@ namespace MagicVilla.Controllers
         }
 
         [HttpGet("{id:int}", Name = "GetVillaNumber")]
+        [MapToApiVersion("1.0")]
         // Following attridutes specifies what status codes method can return.
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -86,6 +89,7 @@ namespace MagicVilla.Controllers
         }
 
         [HttpPost(Name = "CreateVillaNumber")]
+        [MapToApiVersion("1.0")]
         [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -140,6 +144,7 @@ namespace MagicVilla.Controllers
         }
 
         [HttpDelete("{id:int}", Name = "DeleteVillaNumber")]
+        [MapToApiVersion("1.0")]
         [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -181,6 +186,7 @@ namespace MagicVilla.Controllers
         }
 
         [HttpPut("{id:int}", Name = "UpdateVillaNumber")]
+        [MapToApiVersion("1.0")]
         [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -235,6 +241,7 @@ namespace MagicVilla.Controllers
         }
 
         [HttpPatch("{id:int}", Name = "UpdatePartialVillaNumber")]
+        [MapToApiVersion("1.0")]
         [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
