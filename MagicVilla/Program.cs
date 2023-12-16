@@ -3,6 +3,9 @@ using MagicVilla.Data;
 using MagicVilla.Repository.IRepository;
 using MagicVilla.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +17,25 @@ builder.Services.AddControllers(option =>
   .AddXmlDataContractSerializerFormatters();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Authentication with bearer token. 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
+            .GetBytes(builder.Configuration.GetValue<string>("ApiSettings:Secret")!)),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+    };
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -34,6 +56,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
