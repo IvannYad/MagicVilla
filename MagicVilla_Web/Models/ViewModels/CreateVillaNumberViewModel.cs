@@ -1,4 +1,5 @@
-﻿using MagicVilla_Web.Models.DTO;
+﻿using MagicVilla_Utility;
+using MagicVilla_Web.Models.DTO;
 using MagicVilla_Web.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
@@ -12,12 +13,13 @@ namespace MagicVilla_Web.Models.ViewModels
         public VillaNumberCreateDTO VillaNumber { get; set; }
         [ValidateNever]
         public IEnumerable<SelectListItem> VillaList { get; set; }
-        public async Task FillVillaList(IVillaService villaService)
+        public async Task FillVillaList(IVillaService villaService, HttpContext httpContext)
         {
             if (VillaList is not null && VillaList.Any())
                 return;
             
-            var responseVillaList = await villaService.GetAllAsync<APIResponse>();
+            var responseVillaList = await villaService
+                .GetAllAsync<APIResponse>(httpContext.Session.GetString(SD.SessionToken));
             IEnumerable<VillaDTO> villaList = new List<VillaDTO>();
             if (responseVillaList is not null && responseVillaList.IsSuccess)
                 villaList = JsonConvert.DeserializeObject<List<VillaDTO>>(responseVillaList.Result.ToString())!;
