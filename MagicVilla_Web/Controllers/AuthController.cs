@@ -4,8 +4,10 @@ using MagicVilla_Web.Models;
 using MagicVilla_Web.Models.DTO;
 using MagicVilla_Web.Services.IServices;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Security.Claims;
 
 namespace MagicVilla_Web.Controllers
 {
@@ -35,6 +37,15 @@ namespace MagicVilla_Web.Controllers
                 // If login is successfull.
                 LoginResponseDTO loginResponse = JsonConvert
                     .DeserializeObject<LoginResponseDTO>(Convert.ToString(response.Result)!)!;
+
+                // Logging user in so HttpContext will know wheather the user is logged-in. 
+                var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+                identity.AddClaim(new Claim(ClaimTypes.Name, loginResponse.User.UserName));
+                identity.AddClaim(new Claim(ClaimTypes.Role, loginResponse.User.Role));
+                var claimsPrincipal = new ClaimsPrincipal(identity);
+                await HttpContext
+                    .SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+                
                 HttpContext.Session.SetString(SD.SessionToken, loginResponse.Token);
                 TempData["success"] = "Login successfully";
                 return RedirectToAction(nameof(Index), "Home");
@@ -78,7 +89,7 @@ namespace MagicVilla_Web.Controllers
 
         public async Task<IActionResult> Logout()
         {
-            //await HttpContext.SignOutAsync();
+            await HttpContext.SignOutAsync();
             HttpContext.Session.SetString(SD.SessionToken, string.Empty);
             return RedirectToAction(nameof(Index), "Home");
         }

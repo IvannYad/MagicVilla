@@ -51,7 +51,6 @@ namespace MagicVilla.Controllers
         }
 
         [HttpGet("{id:int}", Name = "GetVilla")]
-        [Authorize]
         // Following attridutes specifies what status codes method can return.
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -141,7 +140,7 @@ namespace MagicVilla.Controllers
         }
 
         [HttpDelete("{id:int}", Name = "DeleteVilla")]
-        [Authorize(Roles = "CUSTOM")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
