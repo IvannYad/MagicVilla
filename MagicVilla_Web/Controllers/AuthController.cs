@@ -41,7 +41,7 @@ namespace MagicVilla_Web.Controllers
             }
 
             ModelState.AddModelError("CustomError", response.ErrorMessages.FirstOrDefault());
-            TempData["success"] = "Login failed";
+            TempData["error"] = "Login failed";
             return View(nameof(Login), login);
         }
 
@@ -70,7 +70,7 @@ namespace MagicVilla_Web.Controllers
             APIResponse response =  await _authService.RegisterAsync<APIResponse>(registration);
             if (response is not null && response.IsSuccess)
             {
-                TempData["success"] = "Registrated successfully";
+                TempData["success"] = "Registration successfull";
                 return RedirectToAction(nameof(Login));
             }
             return View();
@@ -78,7 +78,7 @@ namespace MagicVilla_Web.Controllers
 
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync();
+            //await HttpContext.SignOutAsync();
             HttpContext.Session.SetString(SD.SessionToken, string.Empty);
             return RedirectToAction(nameof(Index), "Home");
         }
