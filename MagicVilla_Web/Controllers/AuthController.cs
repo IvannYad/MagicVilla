@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using MagicVilla_Utility;
 using MagicVilla_Web.Models;
 using MagicVilla_Web.Models.DTO;
 using MagicVilla_Web.Services.IServices;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace MagicVilla_Web.Controllers
 {
@@ -24,9 +27,22 @@ namespace MagicVilla_Web.Controllers
         [HttpPost]
         [ActionName("Login")]
         [ValidateAntiForgeryToken]
-        public IActionResult LoginPOST(LoginRequestDTO login)
+        public async Task<IActionResult> LoginPOST(LoginRequestDTO login)
         {
-            return View();
+            APIResponse response = await _authService.LoginAsync<APIResponse>(login);
+            if (response is not null && response.IsSuccess)
+            {
+                // If login is successfull.
+                LoginResponseDTO loginResponse = JsonConvert
+                    .DeserializeObject<LoginResponseDTO>(Convert.ToString(response.Result)!)!;
+                HttpContext.Session.SetString(SD.SessionToken, loginResponse.Token);
+                TempData["success"] = "Login successfully";
+                return RedirectToAction(nameof(Index), "Home");
+            }
+
+            ModelState.AddModelError("CustomError", response.ErrorMessages.FirstOrDefault());
+            TempData["success"] = "Login failed";
+            return View(nameof(Login), login);
         }
 
         [HttpGet]
@@ -62,7 +78,9 @@ namespace MagicVilla_Web.Controllers
 
         public async Task<IActionResult> Logout()
         {
-            return View();
+            await HttpContext.SignOutAsync();
+            HttpContext.Session.SetString(SD.SessionToken, string.Empty);
+            return RedirectToAction(nameof(Index), "Home");
         }
 
         public IActionResult AccessDenied()
