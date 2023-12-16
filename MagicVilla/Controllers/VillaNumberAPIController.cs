@@ -15,6 +15,7 @@ namespace MagicVilla.Controllers
     // Classes with [ApiController] are configured with features to improve developers experience for buildeing API.
     [ApiController]
     [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
     public class VillaNumberAPIController : ControllerBase
     {
         protected APIResponse _response;
@@ -29,6 +30,7 @@ namespace MagicVilla.Controllers
 
         [HttpGet]
         [MapToApiVersion("1.0")]
+        [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<APIResponse>> GetVillaNumbers()
         {
@@ -50,6 +52,7 @@ namespace MagicVilla.Controllers
 
         [HttpGet("{id:int}", Name = "GetVillaNumber")]
         [MapToApiVersion("1.0")]
+        [MapToApiVersion("2.0")]
         // Following attridutes specifies what status codes method can return.
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

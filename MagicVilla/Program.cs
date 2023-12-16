@@ -90,6 +90,13 @@ builder.Services.AddSwaggerGen(options =>
         Description = "API to manage Villa",
         TermsOfService = new Uri("https://example.com/terms")
     });
+    options.SwaggerDoc("v2", new OpenApiInfo()
+    {
+        Version = "v2.0",
+        Title = "MagicVilla",
+        Description = "API to manage Villa",
+        TermsOfService = new Uri("https://example.com/terms")
+    });
 });
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -106,6 +113,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "Magic_VillaV1");
+        options.SwaggerEndpoint("/swagger/v2/swagger.json", "Magic_VillaV2");
     });
 }
 
