@@ -12,14 +12,15 @@ namespace MagicVilla.Repository
     {
         private ApplicationDbContext _context;
         public UnitOfWork(ApplicationDbContext context
-            , [FromServices] IConfiguration configuration
-            , UserManager<ApplicationUser> userManager
+            , [FromServices]IConfiguration configuration
+            , [FromServices]UserManager<ApplicationUser> userManager
+            , [FromServices]RoleManager<IdentityRole> roleManager
             , IMapper mapper)
         {
             _context = context;
             Villa = new VillaRepository(_context);
             VillaNumber = new VillaNumberRepository(_context);
-            User = new UserRepository(_context, configuration, userManager, mapper);
+            User = new UserRepository(_context, configuration, userManager, roleManager, mapper);
         }
         public IVillaRepository Villa { get; private set; }
         public IVillaNumberRepository VillaNumber { get; private set; }

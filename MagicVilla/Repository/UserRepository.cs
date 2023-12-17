@@ -16,16 +16,19 @@ namespace MagicVilla.Repository
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IMapper _mapper;
         private string _secretKey;
 
         public UserRepository(ApplicationDbContext context
             , IConfiguration configuration
             , UserManager<ApplicationUser> userManager
+            , RoleManager<IdentityRole> roleManager
             , IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
+            _roleManager = roleManager;
             _mapper = mapper;
             _secretKey = configuration.GetValue<string>("ApiSettings:Secret")!;
         }
@@ -78,7 +81,7 @@ namespace MagicVilla.Repository
             return loginResponseDTO;
         }
 
-        public async Task<UserDTO> Register(RegistrationRequestDTO registrationRequestDTO)
+        public async Task<UserDTO?> Register(RegistrationRequestDTO registrationRequestDTO)
         {
             ApplicationUser user = new ApplicationUser()
             {
@@ -93,6 +96,12 @@ namespace MagicVilla.Repository
                 var result = await _userManager.CreateAsync(user, registrationRequestDTO.Password);
                 if (result.Succeeded)
                 {
+                    if (!_roleManager.RoleExistsAsync("admin").GetAwaiter().GetResult())
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole("admin"));
+                        await _roleManager.CreateAsync(new IdentityRole("customer"));
+                    }
+
                     await _userManager.AddToRoleAsync(user, "admin");
                     var userToReturn = _context.ApplicationUsers
                         .FirstOrDefault(user => user.UserName == registrationRequestDTO.UserName);
@@ -101,11 +110,9 @@ namespace MagicVilla.Repository
             }
             catch (Exception)
             {
-
-                throw;
             }
 
-            return new UserDTO();
+            return null;
         }
     }
 }
