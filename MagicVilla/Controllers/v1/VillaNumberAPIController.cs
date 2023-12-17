@@ -31,7 +31,7 @@ namespace MagicVilla.Controllers.v1
         [HttpGet]
         [MapToApiVersion("1.0")]
         [MapToApiVersion("2.0")]
-        [ResponseCache(Duration = 30)]
+        [ResponseCache(CacheProfileName = "Default30")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<APIResponse>> GetVillaNumbers()
         {
@@ -54,7 +54,7 @@ namespace MagicVilla.Controllers.v1
         [HttpGet("{id:int}", Name = "GetVillaNumber")]
         [MapToApiVersion("1.0")]
         [MapToApiVersion("2.0")]
-        [ResponseCache(Duration = 30)]
+        [ResponseCache(CacheProfileName = "Default30")]
         // Following attridutes specifies what status codes method can return.
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
