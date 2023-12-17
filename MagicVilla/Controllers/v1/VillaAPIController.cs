@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using System.Text.Json;
 
 namespace MagicVilla.Controllers.v1
 {
@@ -32,14 +33,23 @@ namespace MagicVilla.Controllers.v1
         }
 
         [HttpGet]
+        // Setting cache with lifetime of 30 seconds.
+        [ResponseCache(CacheProfileName = "Default30")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> GetVillas()
+        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery]int pageSize = 0, [FromQuery]int pageNumber = 1)
         {
             try
             {
-                var villas = await _unitOfWork.Villa.GetAllAsync();
+                var villas = await _unitOfWork.Villa.GetAllAsync(pageSize: pageSize, pageNumber: pageNumber);
                 _response.Result = _mapper.Map<List<VillaDTO>>(villas);
                 _response.StatusCode = HttpStatusCode.OK;
+                Pagination pagination = new Pagination()
+                {
+                    PageSize = pageSize,
+                    PageNumber = pageNumber
+                };
+
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination));
                 return Ok(_response);
             }
             catch (Exception ex)
@@ -52,6 +62,7 @@ namespace MagicVilla.Controllers.v1
         }
 
         [HttpGet("{id:int}", Name = "GetVilla")]
+        [ResponseCache(CacheProfileName = "Default30")]
         // Following attridutes specifies what status codes method can return.
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

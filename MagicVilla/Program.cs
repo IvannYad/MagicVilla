@@ -14,6 +14,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers(option =>
 {
+    // Here we configuring cache ptofile.
+    option.CacheProfiles.Add("Default30",
+        new CacheProfile
+        {
+            Duration = 30
+        });
     //option.ReturnHttpNotAcceptable = true;
 }).AddNewtonsoftJson()
   .AddXmlDataContractSerializerFormatters();
@@ -49,6 +55,10 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = false,
     };
 });
+
+// Adding caching.
+builder.Services.AddResponseCaching();
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
