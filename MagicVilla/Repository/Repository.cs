@@ -23,7 +23,7 @@ namespace MagicVilla.Repository
 
         public async Task<List<T>> GetAllAsync(bool tracked = true
             , string? includeProperties = null
-            , int pageSize = 3
+            , int pageSize = 0
             , int pageNumber = 1)
         {
             IQueryable<T> query = _dbSet;

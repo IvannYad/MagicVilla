@@ -6,7 +6,7 @@ namespace MagicVilla.Repository.IRepository
     {
         Task<List<T>> GetAllAsync(bool tracked = true
             , string? includeProperties = null
-            , int pageSize = 3
+            , int pageSize = 0
             , int pageNumber = 1);
         //IEnumerable<T> GetAllAsync(Func<T, bool> filter);
         Task<T?> GetAsync(Expression<Func<T, bool>> filter, bool tracked = true, string? includeProperties = null);

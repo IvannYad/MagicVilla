@@ -36,7 +36,7 @@ namespace MagicVilla.Controllers.v1
         // Setting cache with lifetime of 30 seconds.
         [ResponseCache(CacheProfileName = "Default30")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery]int pageSize = 3, [FromQuery]int pageNumber = 1)
+        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery]int pageSize = 0, [FromQuery]int pageNumber = 1)
         {
             try
             {
