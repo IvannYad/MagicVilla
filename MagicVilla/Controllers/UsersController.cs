@@ -29,7 +29,7 @@ namespace MagicVilla.Controllers
             {
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.BadRequest;
-                _response.ErrorMessages = ["User cannot be found"];
+                _response.ErrorMessages = ["Email or password is incorrect"];
                 return BadRequest(_response);
             }
 

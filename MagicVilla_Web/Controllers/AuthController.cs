@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace MagicVilla_Web.Controllers
@@ -37,11 +38,17 @@ namespace MagicVilla_Web.Controllers
                 // If login is successfull.
                 LoginResponseDTO loginResponse = JsonConvert
                     .DeserializeObject<LoginResponseDTO>(Convert.ToString(response.Result)!)!;
+                var handler = new JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(loginResponse.Token);
 
                 // Logging user in so HttpContext will know wheather the user is logged-in. 
                 var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-                identity.AddClaim(new Claim(ClaimTypes.Name, loginResponse.User.UserName));
-                identity.AddClaim(new Claim(ClaimTypes.Role, loginResponse.User.Role));
+                identity.AddClaim(new Claim(
+                    ClaimTypes.Name
+                    , jwt.Claims.FirstOrDefault(user => user.Type == "unique_name").Value));
+                identity.AddClaim(new Claim(
+                    ClaimTypes.Role
+                    , jwt.Claims.FirstOrDefault(user => user.Type == "role").Value));
                 var claimsPrincipal = new ClaimsPrincipal(identity);
                 await HttpContext
                     .SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
