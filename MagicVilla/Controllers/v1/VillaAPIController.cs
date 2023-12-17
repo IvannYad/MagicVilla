@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using System.Text.Json;
 
 namespace MagicVilla.Controllers.v1
 {
@@ -42,6 +43,13 @@ namespace MagicVilla.Controllers.v1
                 var villas = await _unitOfWork.Villa.GetAllAsync(pageSize: pageSize, pageNumber: pageNumber);
                 _response.Result = _mapper.Map<List<VillaDTO>>(villas);
                 _response.StatusCode = HttpStatusCode.OK;
+                Pagination pagination = new Pagination()
+                {
+                    PageSize = pageSize,
+                    PageNumber = pageNumber
+                };
+
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination));
                 return Ok(_response);
             }
             catch (Exception ex)
