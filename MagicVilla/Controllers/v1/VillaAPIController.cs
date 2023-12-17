@@ -32,6 +32,8 @@ namespace MagicVilla.Controllers.v1
         }
 
         [HttpGet]
+        // Setting cache with lifetime of 30 seconds.
+        [ResponseCache(Duration = 30)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<APIResponse>> GetVillas()
         {
@@ -52,6 +54,7 @@ namespace MagicVilla.Controllers.v1
         }
 
         [HttpGet("{id:int}", Name = "GetVilla")]
+        [ResponseCache(Duration = 30)]
         // Following attridutes specifies what status codes method can return.
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
